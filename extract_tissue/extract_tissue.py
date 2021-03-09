@@ -40,8 +40,3 @@ if __name__ == "__main__":
 	args = get_args(argvals)
 	transcripts = read_input(args.filename, args.column)
 	write_output(args.filout, transcripts)
-
-
-			
-			
-		
