@@ -12,7 +12,8 @@ def get_args(argv = None):
 	parser.add_argument("-g", "--blast_alignment", help="File containing the blast alignment, max_target have to be one.")
 	parser.add_argument("-m", "--multiple_copy", help="Path of the folder containing the busco multiple copy sequences.")
 	parser.add_argument("-s", "--single_copy", help="Path of the folder containing the busco single copy sequences")
-	parser.add_argument("-c", "--column_tissue", help="Column of the tissue/sample considered to draw the curve. Multiple samples can be pulled together to draw it e.g. for sample 1 to 3 : '1-3'")
+	parser.add_argument("-c", "--column_tissue", help="Column of the tissue/sample considered to draw the curve. Multiple samples can be pulled together\
+	to draw it e.g. for sample 1 to 3 : '1-3'")
 	parser.add_argument("-p", "--step_number", help="Number of subsets.")
 	parser.add_argument("-t", "--title_curve", help="Title of the curve.")
 	return parser.parse_args(argv)
