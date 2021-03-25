@@ -4,10 +4,14 @@ usage: extract_tissue.py [-h] [-i FILENAME] [-c COLUMN] [-o FILOUT]
 
 optional arguments:
 
--h, --help: show this help message and exit
+-h, --help
+show this help message and exit
 
--i FILENAME, --filename FILENAME: Take the clustering summary file as input.
+-i FILENAME, --filename
+Take the clustering summary file as input.
                     
--c COLUMN, --column COLUMN: The column number of the specific tissue in the input file.
+-c COLUMN, --column
+The column number of the specific tissue in the input file.
 
--o FILOUT, --filout FILOUT: Output a txt file with the list of transcripts for the specified tissue.
+-o FILOUT, --filout
+Output a txt file with the list of transcripts for the specified tissue.
