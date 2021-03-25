@@ -2,6 +2,7 @@
 
 import argparse
 import random
+import os
 import matplotlib.pyplot as plt
 
 def get_args(argv = None):
@@ -142,5 +143,5 @@ if __name__ == "__main__":
 	if args.blast_alignment != None:
 		genes_dict, nb_transcripts = find_transcripts_blast(args.blast_alignment, abundance_dict)
 	else:
-		genes_dict, nb_transcripts = find_transcripts(args.multiple_copy, args.single_copy, abundance_dict)
+		genes_dict, nb_transcripts = find_transcripts_busco(args.multiple_copy, args.single_copy, abundance_dict)
 	transcripts_shuffling(genes_dict, nb_transcripts, args.step_number, args.title_curve)
