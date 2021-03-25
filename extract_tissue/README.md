@@ -2,8 +2,6 @@ This script extracts the transcripts that are expressed in a selected tissue usi
 
 usage: extract_tissue.py [-h] [-i FILENAME] [-c COLUMN] [-o FILOUT]
 
-optional arguments:
-
 -h, --help
 show this help message and exit
 
