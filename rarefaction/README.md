@@ -37,9 +37,9 @@ Title of the curve.
 
 Example to run on blast output:
 
-    python3 rarefaction.py -i data/example_summary.csv -g example_blast.txt -c 3 -p 100 -t "Rarefaction curve sample 3"
+    python3 rarefaction.py -i data/example_summary.csv -g data/example_blast.txt -c 3 -p 100 -t "Rarefaction curve sample 3"
     
     
 Example to run on busco output:
 
-    python3 rarefaction.py -i data/example_summary.csv -m example_mbusco -s example_sbusco -c 3 -p 100 -t "Rarefaction curve sample 3"
+    python3 rarefaction.py -i data/example_summary.csv -m data/example_mbusco -s data/example_sbusco -c 3 -p 100 -t "Rarefaction curve sample 3"
