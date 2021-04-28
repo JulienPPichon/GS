@@ -13,6 +13,7 @@ def read_filin(input_file):
 	gene_dict = {}
 	gene_pos = {}
 	mrna_pos = {}
+	gene_score = {}
 	with open(input_file, "r") as filin:
 		for line in filin:
 			line = line.strip()
@@ -21,29 +22,46 @@ def read_filin(input_file):
 				continue
 			line = line[:-1] + line[-1].split(";")
 			if line[2] == "gene":
+				score = line[-1].split("score%3D")[-1]
 				gene_id = line[8]
 				gene_dict[gene_id] = {}
 				gene_pos[gene_id] = [line[3], line[4]]
+				gene_score[gene_id] = float(score)
 			elif line[2] == "mRNA":
 				mRNA_id = ".".join(line[8].split(".")[0:-1])
 				gene_dict[gene_id][mRNA_id] = []
 				mrna_pos[mRNA_id] = [line[3], line[4]]
 			else:
 				gene_dict[gene_id][mRNA_id].append(line[:-2])
-	return [gene_dict, gene_pos, mrna_pos]
+	return [gene_dict, gene_pos, mrna_pos, gene_score]
 	
-	
-def filter_isoform(gene_dict):
+
+def chose_best_gene(gene_dict, gene_score):
+	gene_score_set = set()
+	b_gene_dict = {}
+	best_score = list(sorted(gene_score.values(), reverse = True)[0:1200])
+	for gene in best_score:
+		for key, value in gene_score.items():
+			if gene == value:
+				score_id = key
+				gene_score_set.add(score_id)
+	for gene_id in gene_score_set:
+		b_gene_dict[gene_id] = gene_dict[".".join(gene_id.split(".")[0:2])]
+	return b_gene_dict
+
+
+def filter_isoform(b_gene_dict):
 	f_gene_dict = {}
 	gene_cds_dict = {}
-	for gene in gene_dict:
-		if len(gene_dict[gene]) == 1:
-			f_gene_dict[gene] = gene_dict[gene]
+	for gene in b_gene_dict:	
+		if len(b_gene_dict[gene]) == 1:
+			iso_key = list(b_gene_dict[gene].keys())[0]
+			f_gene_dict[iso_key] = b_gene_dict[gene][iso_key]
 		else:
 			cds_dict = {}
-			for isoform in gene_dict[gene]:
+			for isoform in b_gene_dict[gene]:
 				cds = 0
-				for line in gene_dict[gene][isoform]:
+				for line in b_gene_dict[gene][isoform]:
 					if line[2] == "CDS":
 						cds = int(line[4]) - int(line[3]) + cds
 						cds_dict[isoform] = cds
@@ -51,29 +69,15 @@ def filter_isoform(gene_dict):
 			for key, value in cds_dict.items():
 				if max_cds == value:
 					max_cds_id = key
-					f_gene_dict[gene] = gene_dict[gene][max_cds_id]
+					f_gene_dict[max_cds_id] = b_gene_dict[gene][max_cds_id]
 					gene_cds_dict[max_cds_id] = max_cds
 					break
 	return [f_gene_dict, gene_cds_dict]
 					
 
-def chose_best_gene(f_gene_dict, gene_cds_dict):
-	cds_set = set()
-	b_gene_dict = {}
-	best_cds = list(sorted(gene_cds_dict.values(), reverse = True)[0:1200])
-	for cds in best_cds:
-		for key, value in gene_cds_dict.items():
-			if cds == value:
-				cds_id = key
-				cds_set.add(cds_id)
-	for gene_id in cds_set:
-		b_gene_dict[gene_id] = f_gene_dict[".".join(gene_id.split(".")[0:2])]
-	return b_gene_dict
-	
-
-def split_dict(b_gene_dict, seed):
+def split_dict(f_gene_dict, seed):
 	rd.seed(1)
-	list_id = list(b_gene_dict.keys())
+	list_id = list(f_gene_dict.keys())
 	training_set = rd.sample(list_id, 1000)
 	test_set = []
 	for gene_id in list_id:
@@ -82,9 +86,9 @@ def split_dict(b_gene_dict, seed):
 	training_dict = {}
 	test_dict = {}
 	for gene in training_set:
-		training_dict[gene] = b_gene_dict[gene]
+		training_dict[gene] = f_gene_dict[gene]
 	for gene in test_set:
-		test_dict[gene] = b_gene_dict[gene]
+		test_dict[gene] = f_gene_dict[gene]
 	return [training_dict, test_dict]
 	
 	
@@ -105,15 +109,15 @@ def write_output(dict_set, gene_pos, mrna_pos, output_name):
 			filout.write("\t".join(mrna_line[:-1]) + " " + mrna_line[-1] + "\n")
 			for line in dict_set[gene]:
 				filout.write("\t".join(line) + "\t" + gene_line[-2] + gene_line[-1] + "\n")
-	
+
 		
 if __name__ == "__main__":
 
 	argvals = None
 	args = get_args(argvals)
-	gene_dict, gene_pos, mrna_pos = read_filin(args.filename)
-	f_gene_dict, gene_cds_dict = filter_isoform(gene_dict)
-	b_gene_dict = chose_best_gene(f_gene_dict, gene_cds_dict)
-	training_dict, test_dict = split_dict(b_gene_dict, args.seed)
+	gene_dict, gene_pos, mrna_pos, gene_score = read_filin(args.filename)
+	b_gene_dict = chose_best_gene(gene_dict, gene_score)	
+	f_gene_dict, gene_cds_dict = filter_isoform(b_gene_dict)
+	training_dict, test_dict = split_dict(f_gene_dict, args.seed)
 	write_output(training_dict, gene_pos, mrna_pos, "training_set.gtf")
 	write_output(test_dict, gene_pos, mrna_pos, "test_set.gtf")
